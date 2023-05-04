@@ -1,15 +1,19 @@
 'use strict';
 require("dotenv").config();
 const express = require("express");
-const moviesData = require('./moviedata/data.json')
+const moviesData = require('./moviedata/data.json');
 const app = express ();
-const port = 3001;
+const port = process.env.PORT;
 const cors = require('cors');
 const axios = require ("axios");
+const pg = require("pg");
+const client = new pg.Client(process.env.DATABASE_URL);
 app.use(cors());
+app.use(express.json())
 const Key = process.env.API_KEY;
 
-function Movies(title, posterPath, overview) {
+function Movies(id, title, posterPath, overview) {
+    this.id = id;
     this.title = title;
     this.posterPath = posterPath;
     this.overview = overview;
@@ -45,7 +49,8 @@ app.get('/trending',handelTrending);
 app.get('/search',handelSearch);
 app.get('/topRated',handelTopRated);
 app.get('/upcoming',handelUpComing);
-
+app.get('/getmovies', getMoviesHandler);
+app.post('/getmovies', addMoviesHandler);
 
 
 
@@ -53,6 +58,39 @@ app.get('/upcoming',handelUpComing);
 
 
 // handlers
+function addMoviesHandler (req,res){
+    const moviesToAdd=req.body;
+    // console.log(moviesToAdd);
+    const sql= `INSERT into getmovies(title,posterPath,overveiw) values (
+        $1,$2,$3) RETURNING *; `;
+        const values = [moviesToAdd.title, moviesToAdd.posterPath, moviesToAdd.overview];
+        client.query(sql,values).then((data)=>{
+            res.status(201).send(data.rows);
+            // res.send('add successfully');
+        });
+};
+
+
+
+function getMoviesHandler(req,res){
+    const sql = 'select * from getmovies;';
+    client.query(sql)
+        .then((data)=>{
+            // res.send(data.rows);
+            let getmoviesDB= data.rows.map((item)=>{
+                let singleMovie = new Movies(
+                    item.id,
+                    item.title,
+                    item.posterpath,
+                    item.overveiw
+                )
+                return singleMovie;
+            });
+            res.send(getmoviesDB);
+        });
+};
+
+
 async function handelTrending (req,res){
      const trendURL=`https://api.themoviedb.org/3/trending/all/week?api_key=${Key}`;
      let trendfromAPI = await axios.get(trendURL);
@@ -91,11 +129,7 @@ async function handelUpComing (req,res){
     res.send(upComingMovies);
 };
 
-function Movies(title, posterPath, overview) {
-    this.title = title;
-    this.posterPath = posterPath;
-    this.overview = overview;
-}
+
 // const movie = new Movies ( 
 //     "Spider-Man: No Way Home",
 //     "/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg",
@@ -127,8 +161,12 @@ app.use((err, req, res, next) => {
     res.status(500).send('Sorry, something went wrong');
   });
 
-app.listen(port,()=>{
-    console.log(`server is listing on port ${port}`)
-});
+
+  client.connect().then(()=>{
+      app.listen(port,()=>{
+          console.log(`server is listing on port ${port}`);
+      });
+  });
+
 
 

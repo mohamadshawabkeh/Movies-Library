@@ -13,3 +13,6 @@ Image provided Wrrc.jpg
 
 ## Project Features
 <!-- What are the features included in you app -->
+
+## Updates :
+the server is connected with API and database now.
