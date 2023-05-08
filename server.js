@@ -51,6 +51,10 @@ app.get('/topRated',handelTopRated);
 app.get('/upcoming',handelUpComing);
 app.get('/getmovies', getMoviesHandler);
 app.post('/getmovies', addMoviesHandler);
+app.delete('/getmovies/:id', deleteMoviesHandler);
+app.put('/getmovies/:id', updateMoviesHandler);
+
+
 
 
 
@@ -58,6 +62,33 @@ app.post('/getmovies', addMoviesHandler);
 
 
 // handlers
+function updateMoviesHandler (req,res){
+    const updateId= req.params.id;
+    const sql = `update getmovies set title =$1, posterPath=$2, overveiw=$3 where id = ${updateId} returning *; `
+    const values = [req.body.title,req.body.posterPath,req.body.overview];
+    client.query(sql,values)
+   .then((data)=>{
+
+    res.status(200).json(data.rows)
+    
+
+   });
+};
+
+
+
+function deleteMoviesHandler (req,res){
+   const movieId= req.params.id;
+   const sql = `delete from getmovies where id = ${movieId} `
+   client.query(sql)
+   .then((data)=>{
+
+    res.status(202).json(`deleted`)    
+   });
+
+};
+
+
 function addMoviesHandler (req,res){
     const moviesToAdd=req.body;
     // console.log(moviesToAdd);
