@@ -51,17 +51,34 @@ app.get('/topRated',handelTopRated);
 app.get('/upcoming',handelUpComing);
 app.get('/getmovies', getMoviesHandler);
 app.post('/getmovies', addMoviesHandler);
-app.delete('/getmovies/:id', deleteMoviesHandler);
-app.put('/getmovies/:id', updateMoviesHandler);
-
-
-
-
-
+app.delete('/DELETE/:id', deleteMoviesHandler);
+app.put('/UPDATE/:id', updateMoviesHandler);
+app.get('/getMovie/:id', getMovieHandler);
 
 
 
 // handlers
+function getMovieHandler(req, res) {
+    const movieId = req.params.id;
+    const sql = 'SELECT * FROM getmovies WHERE id = $1;';
+    const values = [movieId];
+    client.query(sql,values)
+        .then((data)=>{
+            let movie = data.rows.map((item)=>{
+                let singleMovie = new Movies(
+                    item.id,
+                    item.title,
+                    item.posterpath,
+                    item.overveiw
+                )
+                return singleMovie;
+            });
+            res.send(movie);
+        });
+};
+
+
+
 function updateMoviesHandler (req,res){
     const updateId= req.params.id;
     const sql = `update getmovies set title =$1, posterPath=$2, overveiw=$3 where id = ${updateId} returning *; `
