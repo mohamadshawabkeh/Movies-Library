@@ -69,7 +69,7 @@ function getMovieHandler(req, res) {
                     item.id,
                     item.title,
                     item.posterpath,
-                    item.overveiw
+                    item.overview
                 )
                 return singleMovie;
             });
@@ -81,7 +81,7 @@ function getMovieHandler(req, res) {
 
 function updateMoviesHandler (req,res){
     const updateId= req.params.id;
-    const sql = `update getmovies set title =$1, posterPath=$2, overveiw=$3 where id = ${updateId} returning *; `
+    const sql = `update getmovies set title =$1, posterPath=$2, overview=$3 where id = ${updateId} returning *; `
     const values = [req.body.title,req.body.posterPath,req.body.overview];
     client.query(sql,values)
    .then((data)=>{
@@ -109,7 +109,7 @@ function deleteMoviesHandler (req,res){
 function addMoviesHandler (req,res){
     const moviesToAdd=req.body;
     // console.log(moviesToAdd);
-    const sql= `INSERT into getmovies(title,posterPath,overveiw) values (
+    const sql= `INSERT into getmovies(title,posterPath,overview) values (
         $1,$2,$3) RETURNING *; `;
         const values = [moviesToAdd.title, moviesToAdd.posterPath, moviesToAdd.overview];
         client.query(sql,values).then((data)=>{
@@ -130,7 +130,7 @@ function getMoviesHandler(req,res){
                     item.id,
                     item.title,
                     item.posterpath,
-                    item.overveiw
+                    item.overview
                 )
                 return singleMovie;
             });
@@ -181,14 +181,15 @@ async function handelUpComing (req,res){
 // const movie = new Movies ( 
 //     "Spider-Man: No Way Home",
 //     "/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg",
-//     "Peter Parker is unmasked and no longer able to separate his normal life from the high-stakes of being a super-hero. When he asks for help from Doctor Strange the stakes become even more dangerous, forcing him to discover what it truly means to be Spider-Man."
+//     "Peter Parker is unmasked and no longer able to separate his normal life from the high-stakes of being a super-hero. When he asks for help from Doctor Strange the stakes become even more dangerous, forcing him to discover what it truly means to be Spider-Man.",
+//      result.push(this)
 //     );
     
     
 app.get('/',(req,res)=>{
     let result = [];
     moviesData.data.forEach((element)=>{
-    result.push(new Movies(element.title,element.posterPath,element.overview));
+    result.push(new Movies(element.id,element.title,element.posterPath,element.overview));
   });
      res.send(result);
 });
