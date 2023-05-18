@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json())
 const Key = process.env.API_KEY;
 
-function Movies(id, title, posterPath, overview) {
+function Movies(id, title, posterPath, overview,comment) {
     this.id = id;
     this.title = title;
     this.posterPath = posterPath;
@@ -85,8 +85,12 @@ function updateMoviesHandler (req,res){
     const values = [req.body.title,req.body.posterPath,req.body.overview];
     client.query(sql,values)
    .then((data)=>{
+    const newsql=`select * from getmovies;`
+    client.query(newsql).then((data)=>{
+        res.status(200).json(data.rows);
+    })
 
-    res.status(200).json(data.rows)
+    // res.status(200).json(data.rows)
     
 
    });
@@ -99,8 +103,11 @@ function deleteMoviesHandler (req,res){
    const sql = `delete from getmovies where id = ${movieId} `
    client.query(sql)
    .then((data)=>{
-
-    res.status(202).json(`deleted`)    
+    const newsql=`select * from getmovies;`
+    client.query(newsql).then((data)=>{
+        res.status(200).json(data.rows);
+    })
+    // res.status(202).json(`deleted`)    
    });
 
 };
