@@ -115,7 +115,7 @@ function deleteMoviesHandler (req,res){
 
 function addMoviesHandler (req,res){
     const moviesToAdd=req.body;
-    // console.log(moviesToAdd);
+     console.log(moviesToAdd);
     const sql= `INSERT into getmovies(title,posterPath,overview) values (
         $1,$2,$3) RETURNING *; `;
         const values = [moviesToAdd.title, moviesToAdd.posterPath, moviesToAdd.overview];
